@@ -19,6 +19,20 @@ Business logic becomes a directed graph that produces **causal traces an LLM can
 npm install footprintjs
 ```
 
+### [agentfootprint](https://github.com/footprintjs/agentfootprint) — *The explainable agent framework*
+
+Built on FootPrint. Design your agent, watch it run, verify it wasn't hallucinating.
+
+- 6 agent patterns: LLM Call · Agent (ReAct) · RAG · Sequential · Parallel · Routing
+- **Per-iteration evaluation**: `obs.explain()` → connected context + decisions + sources + claims
+- Conditional behavior that activates based on accumulated state — not hardcoded if/else
+- $0 test suite via `mock()` adapter · Anthropic · OpenAI · Bedrock · Ollama
+- [Live Playground](https://footprintjs.github.io/agent-playground/) with time-travel across all observability tabs
+
+```
+npm install agentfootprint
+```
+
 ---
 
 ## What I write about
@@ -51,7 +65,7 @@ Accepted at **HCII 2026** · Springer proceedings
 Weave (data vis sessions)
   → StateTree (state diffing)
     → FootPrint (execution graphs + causal traces)
-      → AgentFootPrints (LLM adapters)
+      → agentfootprint (explainable agents — design, evaluate, monitor)
 ```
 
 10+ years on one problem: **making the internal state of complex systems legible** to whoever needs to understand them — first humans, now AI.
