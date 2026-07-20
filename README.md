@@ -10,11 +10,14 @@ Outside work, I create open-source frameworks and write about the hard problems 
 > Making the internal state of complex systems legible — first to humans, now to AI.
 
 ```
-Weave  ─►  StateTree  ─►  FootPrint  ─►  agentfootprint
-(data vis  (state         (execution    (context engineering,
- sessions)  diffing)       graphs +      abstracted; decision
-                           causal        evidence as a cache)
-                           traces)
+Weave  ─►  StateTree  ─►  FootPrint  ─►  agentfootprint  ─►  hcifootprint
+(data vis  (state         (execution    (context            (same
+ sessions)  diffing)       graphs +       engineering,        legibility,
+                           causal         abstracted;         pointed at the
+                           traces)        decision            interaction
+                                          evidence            surface — apps
+                                          as a cache)         agents can
+                                                              operate)
 ```
 
 Each step abstracted one more thing the previous step did by hand.
@@ -30,6 +33,7 @@ Business logic becomes a directed graph that produces **causal traces an LLM can
 - 7 flow patterns · transactional state · PII redaction · auto-generated tool descriptions
 - 6 modular libraries: `memory` · `builder` · `scope` · `engine` · `runner` · `contract`
 - Parallel fork/join · streaming · patch-based state · time-travel replay
+- **Variable-first backward slicing** — ask *"why is score N?"* and walk the variable back to its birth · pause/resume checkpoints across servers
 
 ```bash
 npm install footprintjs
@@ -44,11 +48,39 @@ The autograd-shaped abstraction for LLM apps. Built on FootPrint. You describe i
 - **1 Memory factory** — 4 types × 7 strategies, including **Causal** (decision-evidence snapshots → cross-run replay, cheap-model triage, training data — three uses of the same recording)
 - **47 typed observability events** across 13 domains · pause/resume across servers · multi-tenant identity · MCP integration
 - **$0 dev** via `mock()` · 6 LLM providers (Anthropic · OpenAI · Bedrock · Ollama · Browser variants)
+- **Context-bug localization** — when an agent answers wrong, pinpoint *which* injected context caused it (walk the trajectory, shortlist early culprits, confirm by replay) · a **"why this tool?"** scorer over every tool it could have picked
 - [Live Playground](https://footprintjs.github.io/agent-playground/) — paste a trace, drag the time-travel slider
 
 ```bash
 npm install agentfootprint
 ```
+
+### [hcifootprint](https://github.com/footprintjs/hcifootprint) — *Apps agents can operate*
+
+Turns a web app's interaction surface into a **typed, traversable skill graph** an LLM agent can plan over and act on — served over MCP, so the agent acts as the signed-in user through the app's own handlers.
+
+- Adoption ladder starts **read-only** ("guide mode") — the agent observes before it acts
+- Ships `llms.txt` for agent consumers · 281 tests
+- A vanilla dress-shop becomes **agent-operable in three commits** ([demo repo](https://github.com/footprintjs/hcifootprint-demo))
+
+**▶ [Watch the 37-second demo](https://youtu.be/vx5amF94ipI)**
+
+```bash
+npm install hcifootprint
+```
+
+### The ecosystem — six packages, all on npm
+
+| Package | One line |
+|---|---|
+| `footprintjs` | Self-explaining flowchart engine for backend logic |
+| `agentfootprint` | Context engineering + agent framework, built on FootPrint |
+| `hcifootprint` | Web apps as typed skill graphs agents can operate |
+| `footprint-explainable-ui` | Flowchart + time-travel + causal rewind on one timeline |
+| `agentfootprint-lens` | Agent debugging with one time cursor |
+| `agentthinkingui` | Scrubbable story replay + the why-this-tool rack |
+
+Full graph → **[footprintjs.github.io](https://footprintjs.github.io/)**
 
 ---
 
@@ -67,7 +99,7 @@ Earlier work — *Bridging UI Design and Chatbot Interactions* (form-based princ
 
 ## Writing
 
-**[Enterprise Gen AI Application](https://www.linkedin.com/newsletters/enterprise-gen-ai-application-7270536688406802432/)** — LinkedIn newsletter, 320+ subscribers.
+**[Enterprise Gen AI Application](https://www.linkedin.com/newsletters/enterprise-gen-ai-application-7270536688406802432/)** — LinkedIn newsletter, 320+ subscribers · **[The Trail Pattern](https://footprintjs.github.io/blog/)** — the footprintjs ecosystem blog.
 
 | # | Post | Core idea |
 |---|------|-----------|
