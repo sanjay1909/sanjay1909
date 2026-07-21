@@ -92,7 +92,7 @@ A framework for deterministic LLM-agent transparency. A **third paradigm** disti
 - **LLM-as-judge** — a second agent grades the first (recursive trust problem)
 - **Recorded decision evidence** — *the framework owns the trace*. Every decision the flowchart makes is a typed event; humans, cheaper LLMs, and training pipelines all consume the same recording.
 
-Accepted at **HCI International 2026** · Springer proceedings.
+*Visible Reasoning: User-Facing Decision Transparency for Generative AI Systems* — published at **HCI International 2026** · LNCS 16745, pp. 3–21 · Springer, Cham · [doi:10.1007/978-3-032-30849-8_1](https://doi.org/10.1007/978-3-032-30849-8_1).
 Earlier work — *Bridging UI Design and Chatbot Interactions* (form-based principles → conversational agents) — published at **HCII 2025**.
 
 ---
