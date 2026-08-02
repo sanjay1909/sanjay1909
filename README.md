@@ -1,113 +1,131 @@
-# I build developer abstractions that make AI systems explainable by construction.
+# I build provenance-native systems for human–agent software.
 
-By day, **Senior Engineer at AWS**, building production generative AI applications.
-Outside work, I create open-source frameworks and write about the hard problems most teams skip when shipping enterprise AI.
+Software that records evidence as it runs — so humans and agents can **inspect, replay, challenge, and safely act on what happened**.
 
----
+By day, I am a **Senior Engineer at AWS**, building production generative AI applications. Outside work, I create open-source frameworks and research a question I have followed throughout my career:
 
-## 10+ years on one problem
+> How can a complex system make its internal state and decisions legible by construction?
 
-> Making the internal state of complex systems legible — first to humans, now to AI.
+My current answer is one design rule:
 
-```
-Weave  ─►  StateTree  ─►  FootPrint  ─►  agentfootprint  ─►  hcifootprint
-(data vis  (state         (execution    (context            (same
- sessions)  diffing)       graphs +       engineering,        legibility,
-                           causal         abstracted;         pointed at the
-                           traces)        decision            interaction
-                                          evidence            surface — apps
-                                          as a cache)         agents can
-                                                              operate)
-```
+> **Record the path at the moment it happens. Never reconstruct it afterward.**
 
-Each step abstracted one more thing the previous step did by hand.
+**[Explore the ecosystem](https://footprintjs.github.io/)** · [Product view](https://footprintjs.github.io/?view=product) · [Technical view](https://footprintjs.github.io/?view=technical)
 
 ---
 
-## What I'm building
+## What I am building now
 
-### [FootPrint](https://github.com/footprintjs/footPrint) — *The flowchart pattern for backend code*
+The [footprintjs ecosystem](https://footprintjs.github.io/) applies the same recording rule to four different journeys.
 
-Business logic becomes a directed graph that produces **causal traces an LLM can reason over**.
+| Journey | System | What becomes legible |
+|---|---|---|
+| Backend execution | [FootPrint](https://github.com/footprintjs/footPrint) | Reads, writes, branches, state changes, and the cause of any output |
+| Agent reasoning | [AgentFootprint](https://github.com/footprintjs/agentfootprint) | Context injections, model calls, tool decisions, cost, and failure causes |
+| Application interaction | [HACI Footprint](https://github.com/footprintjs/hcifootprint) | The capabilities an agent can currently use, through the signed-in user's real application boundary |
+| Exploratory analysis | [VizFootprint](https://github.com/footprintjs/vizfootprint) | Every human and agent path, including abandoned branches and statistical obligations |
 
-- 7 flow patterns · transactional state · PII redaction · auto-generated tool descriptions
-- 6 modular libraries: `memory` · `builder` · `scope` · `engine` · `runner` · `contract`
-- Parallel fork/join · streaming · patch-based state · time-travel replay
-- **Variable-first backward slicing** — ask *"why is score N?"* and walk the variable back to its birth · pause/resume checkpoints across servers
+Six ecosystem packages are published on npm; VizFootprint is the pre-alpha research system extending the same idea to mixed human–agent visual analysis.
 
-```bash
-npm install footprintjs
-```
+---
 
-### [agentfootprint](https://github.com/footprintjs/agentfootprint) — *Context engineering, abstracted*
+## The systems
 
-The autograd-shaped abstraction for LLM apps. Built on FootPrint. You describe injections; the framework evaluates triggers, composes slots, and observes every decision as a typed event.
+### [FootPrint](https://github.com/footprintjs/footPrint) — execution provenance
 
-- **2 primitives** (`LLMCall` · `Agent`) + **4 compositions** (`Sequence` · `Parallel` · `Conditional` · `Loop`)
-- **1 Injection primitive**, 4 typed factories (`defineSkill` · `defineSteering` · `defineInstruction` · `defineFact`) targeting 3 slots (system · messages · tools) under 4 triggers (always / rule / on-tool-return / llm-activated)
-- **1 Memory factory** — 4 types × 7 strategies, including **Causal** (decision-evidence snapshots → cross-run replay, cheap-model triage, training data — three uses of the same recording)
-- **47 typed observability events** across 13 domains · pause/resume across servers · multi-tenant identity · MCP integration
-- **$0 dev** via `mock()` · 6 LLM providers (Anthropic · OpenAI · Bedrock · Ollama · Browser variants)
-- **Context-bug localization** — when an agent answers wrong, pinpoint *which* injected context caused it (walk the trajectory, shortlist early culprits, confirm by replay) · a **"why this tool?"** scorer over every tool it could have picked
-- [Live Playground](https://footprintjs.github.io/agent-playground/) — paste a trace, drag the time-travel slider
+Business logic becomes a directed graph whose execution record is created inline as the graph runs.
 
-```bash
-npm install agentfootprint
-```
+- Transactional and patch-based state, parallel fork/join, streaming, checkpoints, and time-travel replay
+- Variable-first backward slicing: ask why a value exists and walk it back to the reads, writes, and decisions that produced it
+- Auto-generated tool descriptions and causal traces an LLM can reason over
 
-### [hcifootprint](https://github.com/footprintjs/hcifootprint) — *Apps agents can operate*
+**npm:** [footprintjs](https://www.npmjs.com/package/footprintjs)
 
-Turns a web app's interaction surface into a **typed, traversable skill graph** an LLM agent can plan over and act on — served over MCP, so the agent acts as the signed-in user through the app's own handlers.
+### [AgentFootprint](https://github.com/footprintjs/agentfootprint) — context provenance
 
-- Adoption ladder starts **read-only** ("guide mode") — the agent observes before it acts
-- Ships `llms.txt` for agent consumers · 281 tests
-- A vanilla dress-shop becomes **agent-operable in three commits** ([demo repo](https://github.com/footprintjs/hcifootprint-demo))
+An agent framework that treats context assembly and every model or tool decision as typed, inspectable evidence.
 
-**▶ [Watch the 37-second demo](https://youtu.be/vx5amF94ipI)**
+- Two primitives and four compositions for building agent workflows
+- Typed context injections across system, message, and tool slots
+- Context-bug localization: shortlist the context that changed an answer, remove it, replay, and confirm the cause
+- Causal memory, multi-provider support, MCP integration, pause/resume, and a scored “why this tool?” view
 
-```bash
-npm install hcifootprint
-```
+**npm:** [agentfootprint](https://www.npmjs.com/package/agentfootprint) · [Live playground](https://footprintjs.github.io/agent-playground/)
 
-### The ecosystem — six packages, all on npm
+### [HACI Footprint](https://github.com/footprintjs/hcifootprint) — human and agent computer interaction
 
-| Package | One line |
+Turns a web application's interaction surface into a typed, traversable skill graph an agent can plan over and use through MCP.
+
+- Starts read-only in guide mode: the agent observes before it acts
+- Preserves permissions, preconditions, confirmation gates, and the signed-in user's boundary
+- Makes an existing application agent-operable incrementally rather than replacing its UI
+
+**npm:** [hcifootprint](https://www.npmjs.com/package/hcifootprint) · [Watch the 37-second demo](https://youtu.be/vx5amF94ipI)
+
+### [VizFootprint](https://github.com/footprintjs/vizfootprint) — exploration provenance · pre-alpha
+
+Records exploratory visual analysis as an append-only, parent-linked trail shared by humans and agents.
+
+- Every interaction becomes a cause-tagged commit; moving back and acting creates a branch without erasing the old future
+- Named paths can be compared, replayed, adopted, archived, and restored
+- Statistical memory remains attached to the complete analysis history, including abandoned paths
+
+**Read:** [The Trail Pattern](https://footprintjs.github.io/blog/the-trail-pattern/)
+
+### Evidence lenses
+
+| Lens | Purpose |
 |---|---|
-| `footprintjs` | Self-explaining flowchart engine for backend logic |
-| `agentfootprint` | Context engineering + agent framework, built on FootPrint |
-| `hcifootprint` | Web apps as typed skill graphs agents can operate |
-| `footprint-explainable-ui` | Flowchart + time-travel + causal rewind on one timeline |
-| `agentfootprint-lens` | Agent debugging with one time cursor |
-| `agentthinkingui` | Scrubbable story replay + the why-this-tool rack |
-
-Full graph → **[footprintjs.github.io](https://footprintjs.github.io/)**
+| [Explainable UI](https://github.com/footprintjs/explainable-ui) | Flowchart traversal, time travel, and causal rewind for FootPrint |
+| [AgentFootprint Lens](https://github.com/footprintjs/agentfootprint-lens) | Messages, prompts, tools, decisions, and cost on one execution cursor |
+| [Thinking UI](https://github.com/footprintjs/agentThinkingUI) | Scrubbable replay of an agent's reasoning, evidence, and tool alternatives |
 
 ---
 
-## Visible Reasoning — the research thesis behind it
+## Research
 
-A framework for deterministic LLM-agent transparency. A **third paradigm** distinct from:
+### Visible Reasoning
 
-- **Chain-of-thought** — the agent narrates its own thinking (unverifiable; the narration is more LLM output)
-- **LLM-as-judge** — a second agent grades the first (recursive trust problem)
-- **Recorded decision evidence** — *the framework owns the trace*. Every decision the flowchart makes is a typed event; humans, cheaper LLMs, and training pipelines all consume the same recording.
+My research thesis is that reliable agent transparency should come from **recorded decision evidence owned by the framework**, not from asking a model to narrate or judge its own reasoning.
 
-*Visible Reasoning: User-Facing Decision Transparency for Generative AI Systems* — published at **HCI International 2026** · LNCS 16745, pp. 3–21 · Springer, Cham · [doi:10.1007/978-3-032-30849-8_1](https://doi.org/10.1007/978-3-032-30849-8_1).
-Earlier work — *Bridging UI Design and Chatbot Interactions* (form-based principles → conversational agents) — published at **HCII 2025**.
+- **Chain-of-thought:** another model-generated claim about what happened
+- **LLM-as-judge:** a second model introduces another trust boundary
+- **Recorded decision evidence:** the runtime owns the trace; humans, smaller models, debuggers, and training pipelines consume the same evidence
+
+*Visible Reasoning: User-Facing Decision Transparency for Generative AI Systems* — **HCI International 2026**, LNCS 16745, pp. 3–21, Springer · [DOI](https://doi.org/10.1007/978-3-032-30849-8_1)
+
+Earlier work: *Bridging UI Design and Chatbot Interactions* — **HCI International 2025**.
 
 ---
 
 ## Writing
 
-**[Enterprise Gen AI Application](https://www.linkedin.com/newsletters/enterprise-gen-ai-application-7270536688406802432/)** — LinkedIn newsletter, 320+ subscribers · **[The Trail Pattern](https://footprintjs.github.io/blog/)** — the footprintjs ecosystem blog.
-
-| # | Post | Core idea |
-|---|------|-----------|
-| 1 | From Supply-Driven to Demand-Driven | The chatbot should drive UX, not assist it |
-| 2 | Make Search the First Tool | STAY/SWITCH + Focus Token protocol |
-| 3 | The Flowchart Pattern | Making backend code self-explainable for AI |
+- [Enterprise Gen AI Application](https://www.linkedin.com/newsletters/enterprise-gen-ai-application-7270536688406802432/) — practical patterns for production generative AI
+- [The Flowchart Pattern](https://footprintjs.github.io/blog/the-flowchart-pattern/) — when the drawing becomes the program
+- [The Trail Pattern](https://footprintjs.github.io/blog/the-trail-pattern/) — when the record becomes the map
+- [Visible Reasoning](https://footprintjs.github.io/blog/visible-reasoning/) — deterministic evidence for human-facing agent transparency
 
 ---
 
-**PhD in Computer Science, UMass Lowell** · Dallas, TX
-[LinkedIn](https://linkedin.com/in/sanjay1909) · [Medium](https://medium.com/@sanjay1909) · 
+## How I got here
+
+| Stage | What changed |
+|---|---|
+| **HCI and visual analytics** | Through my PhD work and [Weave](https://github.com/sanjay1909/WeaveCoreJS), I focused on making complex data-visualization sessions understandable to people. |
+| **State architecture** | StateTree moved the question underneath the interface: if state changes drive the experience, those transitions should be inspectable, comparable, and reversible. |
+| **Production engineering** | Building large software systems made the same problem operational: logs describe fragments, but they rarely preserve the causal structure needed to explain a result. |
+| **Execution provenance · 2025** | FootPrint made backend code the graph itself, so execution could record its own reads, writes, branches, and causes. |
+| **Agent context provenance · 2026** | AgentFootprint and Visible Reasoning extended that structure to context assembly, model calls, tool choices, and counterfactual replay. |
+| **Human–agent application interaction · 2026** | HACI Footprint moved from explaining an agent to defining what it can safely see and do inside a real application. |
+| **Exploration provenance · 2026** | VizFootprint broadened the work from planned execution to open-ended human and agent exploration, where the record becomes the map. |
+| **Now** | I am focused on **provenance-native human–agent systems**: software that creates trustworthy evidence during execution and interaction, then exposes the right lens for the person or agent examining it. |
+
+The projects changed. The underlying question did not:
+
+> **How can software make what happened — and why — available as trustworthy evidence?**
+
+---
+
+**PhD in Computer Science, UMass Lowell** · **Senior Engineer at AWS** · Dallas, TX
+
+[LinkedIn](https://linkedin.com/in/sanjay1909) · [Medium](https://medium.com/@sanjay1909) · [GitHub organization](https://github.com/footprintjs)
